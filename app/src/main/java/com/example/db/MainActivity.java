@@ -2,6 +2,7 @@ package com.example.db;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
         txtCourse = findViewById(R.id.course);
         //helper.onCreate(myDB);
     }
+
     protected void addRecord(View v) {
         String fname = txtFname.getText().toString();
         String lname = txtLname.getText().toString();
@@ -36,6 +38,14 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "successfully saved data", Toast.LENGTH_LONG).show();
         }
-        myDB.close();
+    }
+
+    public void goFirst(View v) {
+        Cursor cursor = helper.selectRecords();
+        cursor.moveToFirst();
+        cursor.getString(1);
+        txtFname.setText(cursor.getString(1));
+        txtLname.setText(cursor.getString(1));
+        txtCourse.setText(cursor.getString(1));
     }
 }
