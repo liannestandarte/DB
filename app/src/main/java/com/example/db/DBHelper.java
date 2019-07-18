@@ -12,7 +12,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE = "CREATE TABLE student (_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "FIRST_NAME TEXT, LAST_NAME TEXT , COURSE TEXT)";
     private static final String DROP_TABLE = "DROP TABLE IF EXISTS student";
-    Context context;
+    private static final String SELECT_ALL = "SELECT * FROM student";
 
     public DBHelper(Context context) {
         super(context, DBNAME,null, VER);
@@ -42,13 +42,34 @@ public class DBHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    public Cursor selectRecords(){
+    public Cursor selectRecords() {
         //SELECT FIRST_NAME, LAST_NAME, COURSE FROM student
-        SQLiteDatabase db = this.getWritableDatabase();
-        String[] cols = {"FIRST_NAME", "LAST_NAME", "COURSE"};
-
-        Cursor records = db.query("student", cols, null, null, null, null, null);
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor records = db.rawQuery(SELECT_ALL, null);
+       //String[] cols = {"FIRST_NAME", "LAST_NAME", "COURSE"};
+        //Cursor records = db.query("student", cols, null, null, null, null, null);
+        records.moveToFirst();
         db.close();
         return records;
+    }
+
+    public int updateRecord(String id, String lName, String fName, String course) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues val = new ContentValues();
+        val.put("_ID", id);
+        val.put("FIRST_NAME", fName);
+        val.put("LAST_NAME", lName);
+        val.put("COURSE", course);
+        db.update("student", val, "_ID=?", new String[]{id});
+        db.close();
+      //  return result;
+        return 0;
+    }
+
+    public int deleteRecord(String id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        int result = db.delete("student","_ID=?", new String[]{id});
+        db.close();
+        return result;
     }
 }

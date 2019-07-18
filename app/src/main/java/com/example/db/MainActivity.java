@@ -12,6 +12,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
     DBHelper helper;
+    Cursor cursor;
     SQLiteDatabase myDB;
     EditText txtFname, txtLname, txtCourse;
 
@@ -24,6 +25,9 @@ public class MainActivity extends AppCompatActivity {
         txtFname = findViewById(R.id.first);
         txtLname = findViewById(R.id.last);
         txtCourse = findViewById(R.id.course);
+        cursor = helper.selectRecords();
+        cursor.moveToFirst();
+        showData();
         //helper.onCreate(myDB);
     }
 
@@ -41,11 +45,65 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goFirst(View v) {
-        Cursor cursor = helper.selectRecords();
         cursor.moveToFirst();
-        cursor.getString(1);
+        showData();
+    }
+
+    public void clearEntries(View v) {
+        txtFname.setText("");
+        txtLname.setText("");
+        txtCourse.setText("");
+        txtFname.requestFocus();
+    }
+
+    private void showData() {
         txtFname.setText(cursor.getString(1));
-        txtLname.setText(cursor.getString(1));
-        txtCourse.setText(cursor.getString(1));
+        txtLname.setText(cursor.getString(2));
+        txtCourse.setText(cursor.getString(3));
+    }
+
+    public void goNext(View v) {
+        if(cursor.getPosition()== cursor.getCount()-1) {
+            cursor.moveToLast();
+            showData();
+            Toast.makeText(this,"last record already", Toast.LENGTH_LONG).show();
+        } else {
+            cursor.moveToNext();
+            showData();
+        }
+    }
+
+    public void goPrevious(View v) {
+        if(cursor.getPosition()== 0) {
+            cursor.moveToFirst();
+            showData();
+            Toast.makeText(this,"First Record", Toast.LENGTH_LONG).show();
+        } else {
+            cursor.moveToPrevious();
+            showData();
+        }
+    }
+
+    public void goLast(View v) {
+        cursor.moveToLast();
+        showData();
+    }
+
+    public void updateRecord(View v) {
+        int id = cursor.getInt(0);
+        String fn = txtFname.getText().toString();
+        String ln = txtLname.getText().toString();
+        String co = txtCourse.getText().toString();
+        int isUpdated = helper.updateRecord(""+id, fn, ln, co);
+        if (isUpdated != 1) {
+            Toast.makeText(this, "Successfully updated.", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Update failed.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void deleteRecord(View v) {
+        String id = cursor.getString(0);
+        helper.deleteRecord(id);
     }
 }
